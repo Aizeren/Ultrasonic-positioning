@@ -38,7 +38,7 @@ void loop() {
   delayMicroseconds(10);
   digitalWrite(trigPinReceiver, LOW);  digitalWrite(trigPinTransmit1, LOW);
   
-  lenC = pulseIn(echoPinReceiver, HIGH) / 58 * 20; //C in mm
+  lenC = pulseIn(echoPinReceiver, HIGH) / 58 * 20 + 100; //C in mm +100 because... i dont know why :( it's just 100mm smaller that in reality
   
   delay(100);
 
