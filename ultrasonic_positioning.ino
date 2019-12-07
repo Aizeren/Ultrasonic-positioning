@@ -19,7 +19,7 @@ float alfa, cosAlfa; //angle between X axis and receiver
 float lenC, lenE, lenB, lenD; //distance between receiver and transmitter 1/2; distance between receiver and beginning/ending of X axis
 
 void setup() {
-  Serial.begin (115200);
+  Serial.begin (9600);
   pinMode(trigPinReceiver, OUTPUT);
   pinMode(echoPinReceiver, INPUT);
   pinMode(trigPinTransmit1, OUTPUT);
@@ -32,7 +32,7 @@ void setup() {
 }
 
 void loop() {
-    //measure distance between 1-st transmitter and receiver
+  //measure distance between 1-st transmitter and receiver
   digitalWrite(trigPinReceiver, LOW);  digitalWrite(trigPinTransmit1, LOW);
   delayMicroseconds(5);
   digitalWrite(trigPinReceiver, HIGH);  digitalWrite(trigPinTransmit1, HIGH);
@@ -42,7 +42,7 @@ void loop() {
   while (digitalRead(echoPinReceiver) == LOW);   timeStartSignal = micros();
   while (digitalRead(echoPinReceiver) == HIGH);  timeEndSignal = micros();
   
-  lenC = (timeEndSignal-timeStartSignal) / 58.0 * 20.0; //C in mm +100 because... i dont know why :( it's just 100mm smaller that in reality
+  lenC = (timeEndSignal-timeStartSignal) / 58.0 * 20.0; //C in mm
 
   delay(100);
    
@@ -96,11 +96,11 @@ void loop() {
   averageCoord_X /= n*10;
   averageCoord_Y /= n*10;
 
-  Serial.println("X = " + String(averageCoord_X, 3) + " cm");
-  Serial.println("Y = " + String(averageCoord_Y, 3) + " cm");
+  //Serial.println("X = " + String(averageCoord_X, 3) + " cm");
+  //Serial.println("Y = " + String(averageCoord_Y, 3) + " cm");
 
-  Serial.println("lenC = " + String(lenC));
-  Serial.println("lenE = " + String(lenE));
+  //Serial.println("lenC = " + String(lenC));
+  //Serial.println("lenE = " + String(lenE));
 
   //Serial.println("lenB = " + String(lenB));
   //Serial.println("lenD = " + String(lenD));
@@ -111,5 +111,8 @@ void loop() {
   //Serial.println("Coord X = " + String(coordX[0])); 
   //Serial.println("Coord Y = " + String(coordY[0]));
 
-  Serial.println();
+  Serial.println(averageCoord_X, 3);
+  Serial.println(averageCoord_Y, 3);
+
+  //Serial.println();
 }
