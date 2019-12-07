@@ -6,11 +6,13 @@ int trigPinTransmit1 = 2;
 int trigPinTransmit2 = 3;  
 
 const int n = 6; //number of variables to average
-float lenH = 910; //sensor height in mm
-float lenW = 1520; // distance between sensors in mm
+float lenH = 930; //sensor height in mm
+float lenW = 1550; // distance between sensors in mm
 
 float coordX[n];
 float coordY[n];
+
+float timeStartSignal, timeEndSignal; 
 
 float averageCoord_X = 0, averageCoord_Y = 0;
 float alfa, cosAlfa; //angle between X axis and receiver
@@ -30,27 +32,32 @@ void setup() {
 }
 
 void loop() {
-   
-  //measure distance between 1-st transmitter and receiver
+    //measure distance between 1-st transmitter and receiver
   digitalWrite(trigPinReceiver, LOW);  digitalWrite(trigPinTransmit1, LOW);
   delayMicroseconds(5);
   digitalWrite(trigPinReceiver, HIGH);  digitalWrite(trigPinTransmit1, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPinReceiver, LOW);  digitalWrite(trigPinTransmit1, LOW);
   
-  lenC = pulseIn(echoPinReceiver, HIGH) / 58 * 20 + 100; //C in mm +100 because... i dont know why :( it's just 100mm smaller that in reality
+  while (digitalRead(echoPinReceiver) == LOW);   timeStartSignal = micros();
+  while (digitalRead(echoPinReceiver) == HIGH);  timeEndSignal = micros();
   
-  delay(100);
+  lenC = (timeEndSignal-timeStartSignal) / 58.0 * 20.0; //C in mm +100 because... i dont know why :( it's just 100mm smaller that in reality
 
+  delay(100);
+   
   //measure distance between 2-nd transmitter and receiver
   digitalWrite(trigPinReceiver, LOW);  digitalWrite(trigPinTransmit2, LOW);
   delayMicroseconds(5);
   digitalWrite(trigPinReceiver, HIGH);  digitalWrite(trigPinTransmit2, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPinReceiver, LOW);  digitalWrite(trigPinTransmit2, LOW);
+
+  while (digitalRead(echoPinReceiver) == LOW);   timeStartSignal = micros();
+  while (digitalRead(echoPinReceiver) == HIGH);  timeEndSignal = micros();
  
-  lenE = pulseIn(echoPinReceiver, HIGH) / 58 * 20; //E in mm
-  
+  lenE = (timeEndSignal-timeStartSignal) / 58.0 * 20.0; //E in mm
+ 
   delay(100);
 
   //calculate distance between receiver and beginning
@@ -92,8 +99,8 @@ void loop() {
   Serial.println("X = " + String(averageCoord_X, 3) + " cm");
   Serial.println("Y = " + String(averageCoord_Y, 3) + " cm");
 
-  //Serial.println("lenC = " + String(lenC));
-  //Serial.println("lenE = " + String(lenE));
+  Serial.println("lenC = " + String(lenC));
+  Serial.println("lenE = " + String(lenE));
 
   //Serial.println("lenB = " + String(lenB));
   //Serial.println("lenD = " + String(lenD));
