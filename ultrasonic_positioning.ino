@@ -5,9 +5,9 @@ int echoPinReceiver = 8;
 int trigPinTransmit1 = 2;   
 int trigPinTransmit2 = 3;  
 
-const int n = 6; //number of variables to average
-float lenH = 930; //sensor height in mm
-float lenW = 1550; // distance between sensors in mm
+const int n = 10; //number of variables to average
+float lenH = 880; //sensor height in mm
+float lenW = 1510; // distance between sensors in mm
 
 float coordX[n];
 float coordY[n];
@@ -61,19 +61,17 @@ void loop() {
   delay(100);
 
   //calculate distance between receiver and beginning
-  lenB = sqrt(pow(lenC, 2) - pow(lenH, 2));
+  lenB = sqrt(lenC*lenC - lenH*lenH);
 
   //calculate distance between receiver and ending
-  lenD = sqrt(pow(lenE, 2) - pow(lenH, 2));
+  lenD = sqrt(lenE*lenE - lenH*lenH);
 
   //calculate angle between X axis and receiver
-  cosAlfa = (pow(lenW, 2) + pow(lenB, 2) - pow(lenD, 2))/(2*lenB*lenW);
+  cosAlfa = (lenW*lenW + lenB*lenB - lenD*lenD)/(2*lenB*lenW);
   if (cosAlfa > 1) {
-    alfa = 0;
+    cosAlfa = 1;
   } else if (cosAlfa < -1) {
-    alfa = 3.14159265;
-  } else {
-    alfa = acos(cosAlfa);
+    cosAlfa = -1;
   }
 
   //shift coordinates in array
@@ -83,8 +81,8 @@ void loop() {
   }
 
   //calculate X and Y coords of receiver
-  coordX[0] = lenB*cos(alfa);
-  coordY[0] = lenB*sin(alfa);
+  coordX[0] = lenB*cosAlfa;
+  coordY[0] = lenB*sqrt(1-cosAlfa*cosAlfa);
 
   //calcualte average X and Y coords
   averageCoord_X = 0;
