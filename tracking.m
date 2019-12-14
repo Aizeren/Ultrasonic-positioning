@@ -12,19 +12,23 @@ xLabel = 'Coordinate X';    % x-axis label
 yLabel = 'Coordinate Y';    % y-axis label
 plotGrid = 'minor';                % 'off' to turn off grid
 
-xMin = 50;                     % set x-min
-xMax = 100;                      % set x-max
+xMin = 69;                     % set x-min
+xMax = 95;                      % set x-max
 
-yMin = 10;                     % set y-min
-yMax = 60;                      % set y-max
+yMin = 25;                     % set y-min
+yMax = 45;                      % set y-max
 
-delay = 0.001;                    % make sure sample faster than resolution
+delay = 0.1;                    % update coordinates every n seconds
+
+numOfCoordsToFilter = 7;
  
 %Define Function Variables
-xCoord = 0;
-yCoord = 0;
+xCoord = zeros(1, numOfCoordsToFilter);
+yCoord = zeros(1, numOfCoordsToFilter);
 count = 0;
- 
+
+xCoordsToFilter = zeros(1, numOfCoordsToFilter);
+yCoordsToFilter = zeros(1, numOfCoordsToFilter);
 %Set up Plot
 plotGraph = plot(xCoord,yCoord,'-r',...
                 'LineWidth',1,...
@@ -43,34 +47,43 @@ s = serial(serialPort);
 disp('Close Plot to End Session');
 fopen(s);
 
-while (count < 30)
-    fscanf(s,'%f');
-    count = count + 1;
-end
-count = 0;
- 
 while ishandle(plotGraph) %Loop when Plot is Active
     count = count + 1;
     
-    xDat = fscanf(s,'%f'); %Read Data from Serial as Float
-    yDat = fscanf(s,'%f'); %Read Data from Serial as Float
+    xCoordsToFilter = circshift(xCoordsToFilter, -1);
+    yCoordsToFilter = circshift(yCoordsToFilter, -1);
     
-    %Make sure Data Type is Correct  
-    if(~isempty(xDat) && isfloat(xDat) && ~isempty(yDat) && isfloat(yDat))       
-        xCoord(count) = xDat(1);    %Extract Elapsed Time
-        yCoord(count) = yDat(1);    %Extract 1st Data Element
-
-        %Set Axis according to Scroll Width
+    xCoordsToFilter(numOfCoordsToFilter) = fscanf(s,'%f'); %Read Data from Serial as Float
+    yCoordsToFilter(numOfCoordsToFilter) = fscanf(s,'%f'); %Read Data from Serial as Float
+    
+    %mean filter
+    if (count > numOfCoordsToFilter+2)
+        curCoord = count-numOfCoordsToFilter;
+        xCoord(curCoord) = mean(xCoordsToFilter);
+        yCoord(curCoord) = mean(yCoordsToFilter);
+        
+        %one more filter
+        xCoord(curCoord) = (xCoord(curCoord-1) + 2*xCoord(curCoord-2) + xCoordsToFilter(numOfCoordsToFilter))/4;
+        yCoord(curCoord) = (yCoord(curCoord-1) + 2*yCoord(curCoord-2) + yCoordsToFilter(numOfCoordsToFilter))/4;
         set(plotGraph,'XData',xCoord,'YData',yCoord);
     end
+    
+    %sav-golay filter
+%     if (count > numOfCoordsToFilter)
+% %         xCoord(count) = xCoordsToFilter(numOfCoordsToFilter);
+% %          yCoord(count) = yCoordsToFilter(numOfCoordsToFilter);
+% %         xCoord = sgolayfilt(xCoord, 7, 9);
+% %         yCoord = sgolayfilt(yCoord, 7, 9);
+%        xCoord(count-numOfCoordsToFilter:count-1) = sgolayfilt(xCoordsToFilter, 3, numOfCoordsToFilter-2);
+%        yCoord(count-numOfCoordsToFilter:count-1) = sgolayfilt(yCoordsToFilter, 3, numOfCoordsToFilter-2);
+%        set(plotGraph,'XData',xCoord,'YData',yCoord);
+%     end
+
     
     pause(delay);
 end
  
-%Close Serial COM Port and Delete useless Variables
+%Close Serial COM Port
 fclose(s);
-%clear count dat delay max min plotGraph plotGrid plotTitle s ...
- %       scrollWidth serialPort xLabel yLabel;
- 
  
 disp('Session Terminated...');
