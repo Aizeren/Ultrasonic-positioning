@@ -25,8 +25,8 @@ load('./resources/yCoordUnfiltered_1_config', 'yCoordUnfiltered');
 
 maxCount = size(xCoordUnfiltered, 2);
 
-xCoordExpected = [71.26 91.7 91.08 71 71.26];
-yCoordExpected = [29.78 29.68 45.18 45.2 29.78];
+load('./resources/xCoordExpected_1_config', 'xCoordExpected');
+load('./resources/yCoordExpected_1_config', 'yCoordExpected');
 
 xCoordMean = zeros(1, maxCount);
 yCoordMean = zeros(1, maxCount);
@@ -67,6 +67,39 @@ while(count < maxCount)
         end
 end
 
+xCoordSav = sgolayfilt(xCoordUnfiltered, 1, 7);
+yCoordSav = sgolayfilt(yCoordUnfiltered, 1, 7);
+
+%calculate metrics
+xExpectedMin = mean([xCoordExpected(1) xCoordExpected(4)]);
+yExpectedMin = mean([yCoordExpected(1) yCoordExpected(2)]);
+
+xExpectedMax = mean([xCoordExpected(2) xCoordExpected(3)]);
+yExpectedMax = mean([yCoordExpected(3) yCoordExpected(4)]);
+
+filterError = zeros(1, count);
+%norms for mean filter
+for i=1:count
+   filterError(i) = min([abs(xCoordMean(i) - xExpectedMin), abs(xCoordMean(i) - xExpectedMax), abs(yCoordMean(i) - yExpectedMin), abs(yCoordMean(i) - yExpectedMax)]);
+end
+fprintf('L2 norm for mean filter = %f\n', norm(filterError, 2));
+fprintf('L-inf norm for mean filter = %f\n\n', max(filterError));
+
+%norms for median filter
+for i=1:medCount
+   filterError(i) = min([abs(xCoordMed(i) - xExpectedMin), abs(xCoordMed(i) - xExpectedMax), abs(yCoordMed(i) - yExpectedMin), abs(yCoordMed(i) - yExpectedMax)]);
+end
+fprintf('L2 norm for median filter = %f\n', norm(filterError, 2));
+fprintf('L-inf norm for median filter = %f\n\n', max(filterError));
+
+%norms for Savitzky-Golay filter
+for i=1:count
+   filterError(i) = min([abs(xCoordSav(i) - xExpectedMin), abs(xCoordSav(i) - xExpectedMax), abs(yCoordSav(i) - yExpectedMin), abs(yCoordSav(i) - yExpectedMax)]);
+end
+fprintf('L2 norm for Sav-Golay filter = %f\n', norm(filterError, 2));
+fprintf('L-inf norm for Sav-Golay filter = %f\n', max(filterError));
+
+
 %mean filter plot
 plot(xCoordMean,yCoordMean, '-','Color', [0, 0.4470, 0.7410]);
 
@@ -78,8 +111,8 @@ plot(xCoordMed, yCoordMed, '-','Color', [0.9290, 0.6940, 0.1250]);
 hold on
 
 %savitsky-golay filter plot
-plot(sgolayfilt(xCoordUnfiltered, 3, 11), sgolayfilt(yCoordUnfiltered, 3, 11), '-','Color', [0.4660, 0.6740, 0.1880]);
-% plot(xCoordSav,yCoordSav '-','Color', [0.4660, 0.6740, 0.1880]);
+% plot(sgolayfilt(xCoordUnfiltered, 3, 9), sgolayfilt(yCoordUnfiltered, 3, 9), '-','Color', [0.4660, 0.6740, 0.1880]);
+plot(xCoordSav,yCoordSav, '-','Color', [0.4660, 0.6740, 0.1880]);
 
 hold on
 
@@ -97,5 +130,3 @@ xlabel(xLabel,'FontSize',15);
 ylabel(yLabel,'FontSize',15);
 axis([xMin xMax yMin yMax]);
 grid(plotGrid);
-
-disp('Session Terminated...');

@@ -4,8 +4,8 @@ int trigPinTransmit1 = 2;
 int trigPinTransmit2 = 3;  
 
 const int n = 1; //number of variables to average
-float lenH = 905; //sensor height in mm
-float lenW = 1550; // distance between sensors in mm
+float lenH = 1310; //sensor height in mm
+float lenW = 660; // distance between sensors in mm
 
 float coordX[n];
 float coordY[n];
