@@ -6,29 +6,24 @@ clear
 clc
  
 %User Defined Properties 
-serialPort = 'COM3';
 plotTitle = 'Receiver position';
 xLabel = 'Coordinate X';
 yLabel = 'Coordinate Y';
 plotGrid = 'minor';
 
-xMin = 70;                     % set x-min
-xMax = 95;                      % set x-max
+xMin = 60;                     % set x-min
+xMax = 100;                      % set x-max
 
-yMin = 25;                     % set y-min
-yMax = 45;                      % set y-max
-
-delay = 0.05;                    % update coordinates every n seconds
+yMin = 15;                     % set y-min
+yMax = 55;                      % set y-max
 
 numOfCoordsToFilter = 7; 
  
 %Define Function Variables
-count = 0;
-medCount = 0;
-maxCount = 70;
+load('./resources/xCoordUnfiltered_1_config', 'xCoordUnfiltered');
+load('./resources/yCoordUnfiltered_1_config', 'yCoordUnfiltered');
 
-xCoordUnfiltered = zeros(1, maxCount);
-yCoordUnfiltered = zeros(1, maxCount);
+maxCount = size(xCoordUnfiltered, 2);
 
 xCoordExpected = [71.26 91.7 91.08 71 71.26];
 yCoordExpected = [29.78 29.68 45.18 45.2 29.78];
@@ -44,22 +39,12 @@ yCoordSav = zeros(1, maxCount);
 
 xCoordCur = 0;
 yCoordCur = 0;
- 
-%Open Serial COM Port
-s = serial(serialPort);
-disp('Close Plot to End Session');
-fopen(s);
+count = 0;
+medCount = 0;
 
-%while ishandle(plotGraph)
+
 while(count < maxCount)  
-    xCoordCur = fscanf(s,'%f'); %Read Data from Serial as Float
-    yCoordCur = fscanf(s,'%f'); %Read Data from Serial as Float
-
-    if(~isempty(xCoordCur) && isfloat(xCoordCur) && ~isempty(yCoordCur) && isfloat(yCoordCur))
         count = count + 1;
-
-        xCoordUnfiltered(count) = xCoordCur;
-        yCoordUnfiltered(count) = yCoordCur;
         
         if (count > numOfCoordsToFilter)
             %mean filter
@@ -80,27 +65,21 @@ while(count < maxCount)
            xCoordMed(count) = median(xCoordUnfiltered(1:count)); 
            yCoordMed(count) = median(yCoordUnfiltered(1:count)); 
         end
-    end
-    
-    pause(delay);
 end
- 
-%Close Serial COM Port
-fclose(s);
 
 %mean filter plot
-plot(xCoordMean,yCoordMean,'-r');
+plot(xCoordMean,yCoordMean, '-','Color', [0, 0.4470, 0.7410]);
 
 hold on
 
 %median filter plot
-plot(xCoordMed, yCoordMed, '-k');
+plot(xCoordMed, yCoordMed, '-','Color', [0.9290, 0.6940, 0.1250]);
 
 hold on
 
 %savitsky-golay filter plot
-plot(sgolayfilt(xCoordUnfiltered, 3, 11), sgolayfilt(yCoordUnfiltered, 3, 11),'-b');
-% plot(xCoordSav,yCoordSav,'-b');
+plot(sgolayfilt(xCoordUnfiltered, 3, 11), sgolayfilt(yCoordUnfiltered, 3, 11), '-','Color', [0.4660, 0.6740, 0.1880]);
+% plot(xCoordSav,yCoordSav '-','Color', [0.4660, 0.6740, 0.1880]);
 
 hold on
 
@@ -112,7 +91,7 @@ hold on
 %Expected traectory
 plot(xCoordExpected, yCoordExpected, 'o:k');
 
-legend('Mean filter','Median filter','Savitzky-Golay filter','Unfiltered data', 'Expected traectory');
+legend('Mean filter', 'Median filter', 'Savitzky-Golay filter', 'Unfiltered data', 'Expected traectory');
 title(plotTitle,'FontSize',25);
 xlabel(xLabel,'FontSize',15);
 ylabel(yLabel,'FontSize',15);
