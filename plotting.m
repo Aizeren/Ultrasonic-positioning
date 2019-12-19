@@ -67,10 +67,10 @@ while(count < maxCount)
         end
 end
 
-xCoordSav = sgolayfilt(xCoordUnfiltered, 1, 7);
-yCoordSav = sgolayfilt(yCoordUnfiltered, 1, 7);
+xCoordSav = sgolayfilt(xCoordUnfiltered, 3, 11);
+yCoordSav = sgolayfilt(yCoordUnfiltered, 3, 11);
 
-%calculate metrics
+%calculate norm
 xExpectedMin = mean([xCoordExpected(1) xCoordExpected(4)]);
 yExpectedMin = mean([yCoordExpected(1) yCoordExpected(2)]);
 
