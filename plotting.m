@@ -10,23 +10,18 @@ plotTitle = 'Receiver position';
 xLabel = 'Coordinate X';
 yLabel = 'Coordinate Y';
 plotGrid = 'minor';
-
-xMin = 60;                     % set x-min
-xMax = 100;                      % set x-max
-
-yMin = 15;                     % set y-min
-yMax = 55;                      % set y-max
+set(0,'DefaultLineLineWidth',2);
 
 numOfCoordsToFilter = 7; 
  
 %Define Function Variables
-load('./resources/xCoordUnfiltered_1_config', 'xCoordUnfiltered');
-load('./resources/yCoordUnfiltered_1_config', 'yCoordUnfiltered');
+load('./resources/xCoordUnfiltered_2_config', 'xCoordUnfiltered');
+load('./resources/yCoordUnfiltered_2_config', 'yCoordUnfiltered');
 
 maxCount = size(xCoordUnfiltered, 2);
 
-load('./resources/xCoordExpected_1_config', 'xCoordExpected');
-load('./resources/yCoordExpected_1_config', 'yCoordExpected');
+load('./resources/xCoordExpected_2_config', 'xCoordExpected');
+load('./resources/yCoordExpected_2_config', 'yCoordExpected');
 
 xCoordMean = zeros(1, maxCount);
 yCoordMean = zeros(1, maxCount);
@@ -41,6 +36,12 @@ xCoordCur = 0;
 yCoordCur = 0;
 count = 0;
 medCount = 0;
+
+xMin = min(xCoordExpected) - 5;                     % set x-min
+xMax = max(xCoordExpected) + 15;                      % set x-max
+
+yMin = min(yCoordExpected) - 5;                     % set y-min
+yMax = max(yCoordExpected) + 15;                      % set y-max
 
 
 while(count < maxCount)  
@@ -57,7 +58,6 @@ while(count < maxCount)
             xCoordMed(medCount) = median(xCoordUnfiltered(count-numOfCoordsToFilter:count));
             yCoordMed(medCount) = median(yCoordUnfiltered(count-numOfCoordsToFilter:count)); 
             
-            %sav-golay filter
         else
            xCoordMean(count) = mean(xCoordUnfiltered(1:count));
            yCoordMean(count) = mean(yCoordUnfiltered(1:count));
@@ -111,18 +111,17 @@ plot(xCoordMed, yCoordMed, '-','Color', [0.9290, 0.6940, 0.1250]);
 hold on
 
 %savitsky-golay filter plot
-% plot(sgolayfilt(xCoordUnfiltered, 3, 9), sgolayfilt(yCoordUnfiltered, 3, 9), '-','Color', [0.4660, 0.6740, 0.1880]);
 plot(xCoordSav,yCoordSav, '-','Color', [0.4660, 0.6740, 0.1880]);
 
 hold on
 
 %Unfiltered data
-plot(xCoordUnfiltered, yCoordUnfiltered, '--k');
+plotUnfiltered = plot(xCoordUnfiltered, yCoordUnfiltered, '--k');
 
 hold on
 
 %Expected traectory
-plot(xCoordExpected, yCoordExpected, 'o:k');
+plot(xCoordExpected, yCoordExpected,'o:k');
 
 legend('Mean filter', 'Median filter', 'Savitzky-Golay filter', 'Unfiltered data', 'Expected traectory');
 title(plotTitle,'FontSize',25);

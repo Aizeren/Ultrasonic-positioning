@@ -12,12 +12,6 @@ xLabel = 'Coordinate X';
 yLabel = 'Coordinate Y';
 plotGrid = 'minor';
 
-xMin = 25;                     % set x-min
-xMax = 60;                      % set x-max
-
-yMin = 25;                     % set y-min
-yMax = 60;                      % set y-max
-
 delay = 0.05;                    % update coordinates every n seconds
 
 numOfCoordsToFilter = 7; 
@@ -25,13 +19,13 @@ numOfCoordsToFilter = 7;
 %Define Function Variables
 count = 0;
 medCount = 0;
-maxCount = 70;
+maxCount = 100;
 
 xCoordUnfiltered = zeros(1, maxCount);
 yCoordUnfiltered = zeros(1, maxCount);
 
-xCoordExpected = [47.1235 48.5802 31.2071 31.0639 47.1235];
-yCoordExpected = [50.5411 30.0162 33.0451 51.0697 50.5411];
+load('./resources/xCoordExpected_2_config', 'xCoordExpected');
+load('./resources/yCoordExpected_2_config', 'yCoordExpected');
 
 xCoordMean = zeros(1, maxCount);
 yCoordMean = zeros(1, maxCount);
@@ -88,30 +82,36 @@ end
 fclose(s);
 
 %mean filter plot
-plot(xCoordMean,yCoordMean, '-','Color', [0, 0.4470, 0.7410]);
+% plot(xCoordMean,yCoordMean, '-','Color', [0, 0.4470, 0.7410]);
 
 hold on
-% 
-% %median filter plot
+
+%median filter plot
 % plot(xCoordMed, yCoordMed, '-','Color', [0.9290, 0.6940, 0.1250]);
-% 
-% hold on
-% 
-% %savitsky-golay filter plot
+
+hold on
+
+%savitsky-golay filter plot
 % plot(sgolayfilt(xCoordUnfiltered, 3, 11), sgolayfilt(yCoordUnfiltered, 3, 11), '-','Color', [0.4660, 0.6740, 0.1880]);
-% % plot(xCoordSav,yCoordSav '-','Color', [0.4660, 0.6740, 0.1880]);
-% 
-% hold on
-% 
-% %Unfiltered data
-% plot(xCoordUnfiltered, yCoordUnfiltered, '--k');
-% 
-% hold on
+% plot(xCoordSav,yCoordSav '-','Color', [0.4660, 0.6740, 0.1880]);
+
+hold on
+
+%Unfiltered data
+plot(xCoordUnfiltered, yCoordUnfiltered, '--k');
+
+hold on
 
 %Expected traectory
-plot(xCoordExpected, yCoordExpected, 'o:k');
+% plot(xCoordExpected, yCoordExpected, 'o:k');
 
-legend('Mean filter','Median filter','Savitzky-Golay filter','Unfiltered data', 'Expected traectory');
+xMin = min(xCoordUnfiltered) - 5;                     % set x-min
+xMax = max(xCoordUnfiltered) + 15;                      % set x-max
+
+yMin = min(yCoordUnfiltered) - 5;                     % set y-min
+yMax = max(yCoordUnfiltered) + 15;                      % set y-max
+
+legend('Unfiltered data');
 title(plotTitle,'FontSize',25);
 xlabel(xLabel,'FontSize',15);
 ylabel(yLabel,'FontSize',15);
